@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Movies Collection</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#141414;
+  --card:#1f1f1f;
+  --border:#2a2a2a;
+  --text:#ffffff;
+  --accent:#e50914;
+}
+
+*{
+  box-sizing:border-box;
+  font-family:'Roboto Flex', sans-serif;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  padding:40px;
+}
+
+h1{
+  margin-bottom:30px;
+  font-weight:700;
+  letter-spacing:1px;
+}
+
+.input-section{
+  display:flex;
+  gap:10px;
+  margin-bottom:40px;
+  max-width:800px;
+}
+
+input{
+  flex:1;
+  padding:12px;
+  background:var(--card);
+  border:1px solid var(--border);
+  color:white;
+  outline:none;
+}
+
+button{
+  background:var(--accent);
+  border:none;
+  padding:12px 20px;
+  color:white;
+  cursor:pointer;
+  font-weight:500;
+  transition:0.2s;
+}
+
+button:hover{
+  opacity:0.85;
+}
+
+.movie-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:30px;
+}
+
+.movie-card{
+  position:relative;
+  border-radius:6px;
+  overflow:hidden;
+  transition:0.3s ease;
+  cursor:pointer;
+}
+
+.movie-card img{
+  width:100%;
+  height:300px;
+  object-fit:cover;
+  display:block;
+  transition:0.4s ease;
+}
+
+/* Hover Animation */
+.movie-card:hover{
+  transform:scale(1.08);
+  z-index:5;
+}
+
+.movie-card:hover img{
+  filter:brightness(0.6);
+}
+
+/* Overlay Content */
+.overlay{
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  padding:15px;
+  background:linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  opacity:0;
+  transition:0.3s ease;
+}
+
+.movie-card:hover .overlay{
+  opacity:1;
+}
+
+.movie-title{
+  font-size:16px;
+  font-weight:600;
+}
+
+.delete-btn{
+  margin-top:8px;
+  background:rgba(255,255,255,0.15);
+  border:none;
+  padding:6px 10px;
+  font-size:12px;
+  cursor:pointer;
+  color:white;
+}
+</style>
+</head>
+<body>
+
+<h1>🎬 My Movie Collection</h1>
+
+<div class="input-section">
+  <input type="text" id="imageUrl" placeholder="Paste movie image URL...">
+  <input type="text" id="movieTitle" placeholder="Enter movie title...">
+  <button onclick="addMovie()">Add</button>
+</div>
+
+<div id="movieGrid" class="movie-grid"></div>
+
+<script>
+let movies = JSON.parse(localStorage.getItem("movies")) || [];
+
+function saveMovies(){
+  localStorage.setItem("movies", JSON.stringify(movies));
+}
+
+function addMovie(){
+  const urlInput = document.getElementById("imageUrl");
+  const titleInput = document.getElementById("movieTitle");
+
+  const url = urlInput.value.trim();
+  const title = titleInput.value.trim();
+
+  if(!url || !title) return;
+
+  movies.push({url, title});
+
+  urlInput.value="";
+  titleInput.value="";
+
+  saveMovies();
+  renderMovies();
+}
+
+function deleteMovie(index){
+  movies.splice(index,1);
+  saveMovies();
+  renderMovies();
+}
+
+function renderMovies(){
+  const grid=document.getElementById("movieGrid");
+  grid.innerHTML="";
+
+  movies.forEach((movie,index)=>{
+    const card=document.createElement("div");
+    card.className="movie-card";
+
+    const img=document.createElement("img");
+    img.src=movie.url;
+
+    const overlay=document.createElement("div");
+    overlay.className="overlay";
+
+    const title=document.createElement("div");
+    title.className="movie-title";
+    title.textContent=movie.title;
+
+    const del=document.createElement("button");
+    del.textContent="Remove";
+    del.className="delete-btn";
+    del.onclick=(e)=>{
+      e.stopPropagation();
+      deleteMovie(index);
+    };
+
+    overlay.appendChild(title);
+    overlay.appendChild(del);
+
+    card.appendChild(img);
+    card.appendChild(overlay);
+
+    grid.appendChild(card);
+  });
+}
+
+renderMovies();
+</script>
+
+</body>
+</html>
